@@ -243,7 +243,7 @@ int main(int argc, char** argv) {
     float balance = 100.00;
     bool again = true;
 
-    // Display welcome message and wait for player to press any key to start
+    // Display welcome message and wait for user to press any key to start
     cout << "<><><><><><><><><><><><><><><><><>\n";
     cout << "     Welcome to Liam's Casino!\n";
     cout << "         - Blackjack -\n             $ $ $\n";
