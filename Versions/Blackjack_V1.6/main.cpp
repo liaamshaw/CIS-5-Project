@@ -1,4 +1,3 @@
-
 /*
  * File:   main.cpp
  * Author: Liam Shaw
@@ -7,13 +6,14 @@
  * Purpose: The classic card game, Blackjack.
  */
 
-//System Libraries
+// System Libraries
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 #include <fstream>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
 
 using namespace std;
 
@@ -23,10 +23,10 @@ int generateRandomCard() {
 }
 
 // Function to get the value of a card
-int getCardValue(int card, int total) {
-    // Ace can have a value of 1 or 11, depending on the current total
+int getCardValue(int card, int total, bool aceAsEleven) {
+    // Ace can have a value of 1 or 11, depending on the current total and user preference
     if (card == 0)
-        return (total + 11 <= 21) ? 11 : 1;
+        return (total + 11 <= 21 && aceAsEleven) ? 11 : 1;
     // 10, J, Q, K all have a fixed value of 10
     else if (card >= 9)
         return 10;
@@ -35,10 +35,15 @@ int getCardValue(int card, int total) {
         return card + 1;
 }
 
-// Function to display cards from an array
-void displayCards(int cardArray[], int numCards, const string cards[]) {
-    for (int i = 0; i < numCards; i++) {
-        cout << "|" << cards[cardArray[i]] << "| ";
+// Overload the getCardValue function to use the default behavior (Ace as 11)
+int getCardValue(int card, int total) {
+    return getCardValue(card, total, true);
+}
+
+// Function to display cards from a vector
+void displayCards(const vector<int>& cardVector, const string cards[]) {
+    for (int card : cardVector) {
+        cout << "|" << cards[card] << "| ";
     }
     cout << endl;
 }
@@ -57,9 +62,9 @@ bool playRound(float& balance) {
     cout << "       $ Win: 2x your bet\n";
     cout << "    $$ Blackjack: 3x your bet\n";
 
-    // Arrays to store player's and dealer's cards
-    int pcard[10];
-    int dcard[10];
+    // Vectors to store player's and dealer's cards
+    vector<int> pcard;
+    vector<int> dcard;
 
     // Blackjack flag to check if someone has already won with Blackjack
     bool bj = false;
@@ -74,11 +79,11 @@ bool playRound(float& balance) {
 
     // Generate two random cards for the player and dealer
     for (int i = 0; i < 2; i++) {
-        pcard[i] = generateRandomCard();
-        dcard[i] = generateRandomCard();
+        pcard.push_back(generateRandomCard());
+        dcard.push_back(generateRandomCard());
     }
 
-    // Calculate the initial total of the player's and dealer's cards
+    // Calculate the initial total of the player's and dealer's cards using the overloaded function
     for (int i = 0; i < 2; i++) {
         ptotal += getCardValue(pcard[i], ptotal);
         dtotal += getCardValue(dcard[i], dtotal);
@@ -106,7 +111,7 @@ bool playRound(float& balance) {
 
     // Display the player's cards
     cout << "Your cards:\n\n";
-    displayCards(pcard, 2, cards);
+    displayCards(pcard, cards);
     cout << "\nTotal: " << ptotal << endl;
 
     // Check if the player has immediate Blackjack
@@ -137,10 +142,11 @@ bool playRound(float& balance) {
 
         if (choice == 'H' or choice == 'h') {
             pcards++;
-            pcard[pcards] = generateRandomCard();
+            pcard.push_back(generateRandomCard());
             cout << "Your cards:\n\n";
-            displayCards(pcard, pcards + 1, cards);
+            displayCards(pcard, cards);
 
+            // Use the overloaded function here
             ptotal += getCardValue(pcard[pcards], ptotal);
 
             cout << "\nTotal: " << ptotal << endl;
@@ -178,7 +184,8 @@ bool playRound(float& balance) {
     // Dealer's turn to hit
     while (dtotal < 17 && !bj) {
         dcards++;
-        dcard[dcards] = generateRandomCard();
+        dcard.push_back(generateRandomCard());
+        // Use the overloaded function here
         dtotal += getCardValue(dcard[dcards], dtotal);
     }
 
@@ -187,7 +194,7 @@ bool playRound(float& balance) {
         // Show the dealer's cards
         cout << "---------------------------------\n";
         cout << "Dealer's cards:\n\n";
-        displayCards(dcard, dcards + 1, cards);
+        displayCards(dcard, cards);
         cout << "\nTotal: " << dtotal << "\n";
         cout << "---------------------------------\n";
 
